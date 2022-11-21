@@ -76,9 +76,9 @@ $(test_exe): $(test_objs)
 	$(CXX) -o $@ $^ -L$(build_dir) -lmgl $(test_libs) -fsanitize=address
 
 CFLAGS += -Wall #-Wunused-parameter #-Wextra
-CFLAGS += -gfull -O0 -fsanitize=address
+CFLAGS += -gfull -O0 #-fsanitize=address
 #CFLAGS += -03
-LIBS += -fsanitize=address
+#LIBS += -fsanitize=address
 CFLAGS += -arch $(shell uname -m)
 CFLAGS += -I$(spirv_cross_1_2_include_path)
 CFLAGS += -I$(spirv_cross_config_include_path)

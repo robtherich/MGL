@@ -4072,8 +4072,25 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
 
     [self bindObjFuncsToGLMContext: glm_ctx];
 
+    NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
+    NSMutableArray<id<MTLDevice>> *externalGPUs = [[NSMutableArray alloc] init];
+    NSMutableArray<id<MTLDevice>> *discreteGPUs = [[NSMutableArray alloc] init];
+    NSMutableArray<id<MTLDevice>> *integratedGPUs = [[NSMutableArray alloc] init];
+
+    for (id<MTLDevice> device in devices) {
+    if (device.isRemovable) { [externalGPUs addObject:device]; }
+        else if (device.isLowPower) { [integratedGPUs addObject:device]; }
+        else { [discreteGPUs addObject:device]; }
+    }
+
     _device = MTLCreateSystemDefaultDevice();
     assert(_device);
+    if(_device.isLowPower) {
+        NSLog(@"low power device");
+    }
+
+    NSUInteger tier = [_device readWriteTextureSupport];
+    NSLog(@"GPU tier %ld", tier);
 
     // Create the command queue
     _commandQueue = [_device newCommandQueue];
@@ -4089,10 +4106,22 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
     _layer.framebufferOnly = NO; // enable blitting to main color buffer
     _layer.frame = view.layer.frame;
     _layer.magnificationFilter = kCAFilterNearest;
+    
 
     // from https://github.com/bkaradzic/bgfx/issues/2009#issuecomment-581390564
     int scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
-    [_layer setContentsScale: scaleFactor];
+    //[_layer setContentsScale: scaleFactor];
+
+    CGRect frame1 = _layer.frame;
+    CGRect frame2 = view.layer.frame;
+    CGSize size1 = _layer.drawableSize;
+
+	CGSize drawableSize;
+
+	drawableSize.width = _layer.frame.size.width * scaleFactor;
+	drawableSize.height = _layer.frame.size.height * scaleFactor;
+	//_layer.drawableSize = drawableSize;
+
 
     // for iOS, it'll be:
     // scaleFactor = [[UIScreen mainScreen] scale];
@@ -4107,6 +4136,8 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
     {
         [_view setLayer: _layer];
     }
+
+	size1 = _layer.drawableSize;
 
     mglDrawBuffer(glm_ctx, GL_FRONT);
 

@@ -222,7 +222,7 @@ GLMContext createGLMContext(GLenum format, GLenum type,
     
     init_dispatch(ctx);
 
-    ctx->assert_on_error = GL_TRUE;
+    ctx->assert_on_error = GL_FALSE;
     ctx->error_func = error_func;
 
     ctx->temp_element_buffer = NULL;
