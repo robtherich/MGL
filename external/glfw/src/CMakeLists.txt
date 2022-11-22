@@ -35,6 +35,7 @@ if (GLFW_BUILD_COCOA)
                                 cocoa_joystick.m cocoa_monitor.m cocoa_window.m
                                 mgl_context.m)
     target_include_directories(glfw PUBLIC "/usr/local/include/GL")
+    target_include_directories(glfw PRIVATE "${GLFW_SOURCE_DIR}/../../MGL/include")
 endif()
 
 if (GLFW_BUILD_WIN32)
